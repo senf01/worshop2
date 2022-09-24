@@ -1,0 +1,35 @@
+version: "3.8"
+services:
+  web:
+    build: ./app
+    #TASK 5
+    image: 039179004389.dkr.ecr.us-east-2.amazonaws.com/workshop2:workshop2_web
+    command: gunicorn nc_tutorials.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./app/:/usr/src/app/
+      - static_volume:/usr/src/app/static
+    expose:
+      - 8000
+    environment:
+      - DB_NAME=nc_tutorials_db
+      - DB_USER=postgres
+      - DB_PASSWORD=admin123
+      #TASK 5
+      - DB_HOST=nctutorials.cskqsbcig3dy.us-east-2.rds.amazonaws.com
+      - DB_PORT=5432
+      - DATABASE=postgres
+      #TASK 5
+      - VIRTUAL_HOST=ec2-3-23-167-31.us-east-2.compute.amazonaws.com
+      - VIRTUAL_PORT=8000
+  nginx:
+    build: ./nginx
+    #TASK 5
+    image: 039179004389.dkr.ecr.us-east-2.amazonaws.com/workshop2:workshop2_nginx
+    volumes:
+      - static_volume:/usr/src/app/static
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+volumes:
+  static_volume:
